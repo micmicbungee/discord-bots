@@ -79,4 +79,4 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
   }
 }
 
-client.login('NzE1NjM1NTAzMTAxMjQ3NTI5.XtAFfw.Krk-HSw4_GcYTAfAx6_2vGUsgeU');
+client.login('token');
