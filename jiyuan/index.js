@@ -5,19 +5,23 @@ client.once('ready', () => {
 	console.log('Ready!');
 });
 
-// Create an event listener for new guild members (doesn't work)
-// client.on('guildMemberAdd', member => {
-//   member.guild.channels.get('715638886113738832').send('**' + member.user.username + '**, has joined the server!');
-// });
+// Server greeting (taken from discord.js API)
+client.on('guildMemberAdd', member => {
+  // Send the message to a designated channel on a server:
+  const channel = member.guild.channels.cache.find(ch => ch.name === 'general');
+  // Do nothing if the channel wasn't found on this server
+  if (!channel) return;
+  // Send the message, mentioning the member
+  channel.send(`w-welcome, ${member}~`);
+});
 
 client.on('message', message => {
-  if (message.author.bot) return; // if bot sent the message, return
-
+  if (message.author.bot) return; // if bot sent the message, ignore
   var text = message.content.toLowerCase();
   if (text.includes('huan wen')) { 	// if message has huan wen in it
-	message.channel.send('huan wen~'); // otherwise send huan wen~
+	message.channel.send('huan wen~');
 }
-  if (text.includes('!chat')) {
+  if (text.includes('!chat')) { // if message has command !chat
     chat(message,text);
   }
 });
@@ -32,4 +36,5 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
   }
 }
 
-client.login('NzE1NjM1NTAzMTAxMjQ3NTI5.XxjVXA.fevW1agKSbb1G_MyPwzoFYpiXw4');
+// token is bot token, remember to change when pushing to github
+client.login('token');
