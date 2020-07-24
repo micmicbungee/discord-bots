@@ -36,5 +36,4 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
   }
 }
 
-// token is bot token, remember to change when pushing to github
 client.login('token');
