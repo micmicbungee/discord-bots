@@ -17,12 +17,12 @@ client.on('guildMemberAdd', member => {
   channel.send(`w-welcome, ${member}~`);
 });
 
-const prefix = '!'; // command prefix
+const symbol = '!'; // symbol associated with all of this bot's commands
 
 client.on('message', message => {
 	if (message.author.bot) return; // if bot sent the message, ignore
 
-	var cont = message.content.slice(prefix.length).split(" "); // This variable slices off the prefix, then puts the rest in an array based off the spaces
+	var cont = message.content.slice(symbol.length).split(" "); // This variable slices off the symbol, then puts the rest in an array based off the spaces
   var args = cont.slice(1); // This slices off the command in cont, only leaving the arguments.
   var text = message.content.toLowerCase();
 
@@ -32,19 +32,23 @@ client.on('message', message => {
 }
 
 
-  if (text.startsWith(prefix + 'chat')) { // if message has command !chat
+  if (text.startsWith(symbol + 'chat')) { // if message has command !chat
     chat(message,text);
   }
 
 
-	if (text.startsWith(prefix + 'weather')) {
-		weather.find({search: args.join(" "), degreeType: 'F'}, function(err, result) { // Make sure you get that args.join part, since it adds everything after weather.
-					 if (err) message.channel.send(err);
+	if (text.startsWith(symbol + 'weather')) {
+		weather.find({search: args.join(" "), degreeType: 'F'}, function(err, result) {
+					// if no location is specified
+					 if (err) {
+						 message.channel.send("Oops! P-Please input a location!");
+						 return;
+					 }
 
-					 // We also want them to know if a place they enter is invalid.
+					 // if a place they enter is invalid.
 					 if (result.length === 0) {
-							 message.channel.send('**Please enter a valid location.**')
-							 return; // This exits the code so the rest doesn't run.
+							 message.channel.send("S-Sorry, but I couldn't find that location...")
+							 return;
 					 }
 
 					 // Variables
@@ -73,6 +77,8 @@ client.on('message', message => {
 });
 
 // functions
+
+// for chat command
 function chat(msg, text) { // msg = message object, text is actual text of message
   text = msg.content.toLowerCase();
   if (text.includes('hello') || text.includes('hi') || text.includes('hey')) {
