@@ -1,7 +1,10 @@
 const Discord = require('discord.js');
-const client = new Discord.Client();
 const weather = require('weather-js');
+const ytdl = require('ytdl-core');
+const prism = require('prism-media');
 
+const client = new Discord.Client();
+const queue = new Map();
 
 client.once('ready', () => {
 	console.log('Ready!');
@@ -28,8 +31,8 @@ client.on('message', message => {
 
 
   if (text.includes('huan wen')) { 	// if message has huan wen in it
-	message.channel.send('huan wen~');
-}
+		message.channel.send('huan wen~');
+	}
 
 
   if (text.startsWith(symbol + 'chat')) { // if message has command !chat
@@ -39,41 +42,56 @@ client.on('message', message => {
 
 	if (text.startsWith(symbol + 'weather')) {
 		weather.find({search: args.join(" "), degreeType: 'F'}, function(err, result) {
-					// if no location is specified
-					 if (err) {
-						 message.channel.send("Oops! P-Please input a location!");
-						 return;
-					 }
+		// if no location is specified
+		if (err) {
+			message.channel.send("Oops! P-Please input a location!");
+			return;
+		}
 
-					 // if a place they enter is invalid.
-					 if (result.length === 0) {
-							 message.channel.send("S-Sorry, but I couldn't find that location...")
-							 return;
-					 }
+		// if a place they enter is invalid.
+		if (result.length === 0) {
+			message.channel.send("S-Sorry, but I couldn't find that location...")
+			return;
+		}
 
-					 // Variables
-					 var current = result[0].current; // This is a variable for the current part of the JSON output
-					 var location = result[0].location; // This is a variable for the location part of the JSON output
+		// Variables
+		var current = result[0].current; // current part of the JSON output
+		var location = result[0].location; // location part of the JSON output
 
-					 const embed = new Discord.MessageEmbed()
-							 .setDescription(`**${current.skytext}**`) // This is the text of what the sky looks like
-							 .setAuthor(`Weather for ${current.observationpoint}`) // This shows the current location of the weather.
-							 .setThumbnail(current.imageUrl) // This sets the thumbnail of the embed
-							 .setColor(0x00AE86) // This sets the color of the embed
-							 .addField('Timezone',`UTC${location.timezone}`, true) // This is the first field, it shows the timezone, and the true means `inline`, you can read more about this on the official discord.js documentation
-							 .addField('Degree Type',location.degreetype, true)// This is the field that shows the degree type, and is inline
-							 .addField('Temperature',`${current.temperature} Degrees`, true)
-							 .addField('Feels Like', `${current.feelslike} Degrees`, true)
-							 .addField('Winds',current.winddisplay, true)
-							 .addField('Humidity', `${current.humidity}%`, true)
+		const embed = new Discord.MessageEmbed()
+			// from discord.js website
+			.setDescription(`**${current.skytext}**`)
+			.setAuthor(`Weather for ${current.observationpoint}!`)
+			.setThumbnail(current.imageUrl)
+			.setColor(0x00AE86)
+			.addField('Timezone',`UTC${location.timezone}`, true)
+			.addField('Degree Type',location.degreetype, true)
+			.addField('Temperature',`${current.temperature} Degrees`, true)
+			.addField('Feels Like', `${current.feelslike} Degrees`, true)
+			.addField('Winds',current.winddisplay, true)
+			.addField('Humidity', `${current.humidity}%`, true)
 
-							 message.channel.send({embed});
-			 });
-
-
+			.channel.send({embed});
+		});
 	}
 
+	const serverQueue = queue.get(message.guild.id);
 
+	if (text.startsWith(symbol + 'play')) {
+		execute(message, serverQueue);
+		return;
+	}
+	else if (message.content.startsWith(symbol + 'skip')) {
+		skip(message, serverQueue);
+		return;
+	}
+	else if (message.content.startsWith(symbol + 'stop')) {
+		stop(message, serverQueue);
+		return;
+	}
+	else {
+		message.channel.send("Y-You need to enter a valid command please!");
+	}
 });
 
 // functions
@@ -87,6 +105,98 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
   else {
     msg.channel.send("i love huan wen");
   }
+}
+
+async function execute(message, serverQueue) {
+  const args = message.content.split(" ");
+
+  const voiceChannel = message.member.voice.channel;
+  if (!voiceChannel)
+    return message.channel.send(
+      "Sorry...you need to be in a voice channel to play music....."
+    );
+  const permissions = voiceChannel.permissionsFor(message.client.user);
+  if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
+    return message.channel.send(
+      "I-I need the p-permissions to join and speak in your voice channel...."
+    );
+  }
+
+  const songInfo = await ytdl.getInfo(args[1]);
+  const song = {
+    title: songInfo.videoDetails.title,
+    url: songInfo.videoDetails.video_url
+  };
+
+  if (!serverQueue) {
+    const queueContruct = {
+      textChannel: message.channel,
+      voiceChannel: voiceChannel,
+      connection: null,
+      songs: [],
+      volume: 2,
+      playing: true
+    };
+
+    queue.set(message.guild.id, queueContruct);
+
+    queueContruct.songs.push(song);
+
+    try {
+      var connection = await voiceChannel.join();
+      queueContruct.connection = connection;
+      play(message.guild, queueContruct.songs[0]);
+    } catch (err) {
+      console.log(err);
+      queue.delete(message.guild.id);
+      return message.channel.send(err);
+    }
+  } else {
+    serverQueue.songs.push(song);
+    return message.channel.send(`${song.title} has been added to the queue~~~~`);
+  }
+}
+
+function skip(message, serverQueue) {
+  if (!message.member.voice.channel)
+    return message.channel.send(
+      "You have to be in a voice channel to stop the music..."
+    );
+  if (!serverQueue)
+    return message.channel.send("There is no song that I could s-skip!");
+  serverQueue.connection.dispatcher.end();
+}
+
+function stop(message, serverQueue) {
+  if (!message.member.voice.channel)
+    return message.channel.send(
+      "You have to be in a voice channel to stop the music...sorry..."
+    );
+  serverQueue.songs = [];
+  serverQueue.connection.dispatcher.end();
+}
+
+function play(guild, song) {
+  const serverQueue = queue.get(guild.id);
+  if (!song) {
+    serverQueue.voiceChannel.leave();
+    queue.delete(guild.id);
+    return;
+  }
+
+	// const input = await ytdl(song.url);
+	// const pcm = input.pipe(new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 }));
+  // const dispatcher = connection.playConvertedStream(pcm);
+	 const dispatcher = serverQueue.connection
+		options = { quality: 'highestaudio' };
+  	dispatcher.play(ytdl(song.url, options))
+    .on("finish", () => {
+      serverQueue.songs.shift();
+      play(guild, serverQueue.songs[0]);
+    })
+    .on("error", error => console.error(error));
+  // dispatcher.setVolume(0.5);
+  serverQueue.textChannel.send(`Start playing: **${song.title}** ~`);
 }
 
 client.login('token');
