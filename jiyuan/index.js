@@ -39,6 +39,21 @@ client.on('message', message => {
     chat(message,text);
   }
 
+	if (text.startsWith(symbol + 'commands')){ // if message has command !commands
+	//	message.channel.send("List of commands available:\n!chat - use this to chat with the bot\n!weather (insert city) - use this to check the weather\n!play (insert Youtube link) - use this to play music\n!skip - use this to skip the current song\n!stop - use this to stop the current song");
+
+		const embed = new Discord.MessageEmbed()
+		.setTitle("List of commands available:")
+		.setColor(0xF9C3D9)
+		.addField('!chat', '- use this to chat with the bot')
+		.addField('!weather (insert city)', '- use this to check the weather')
+		.addField('!play(insert Youtube link)', '- use this to play music')
+		.addField('!skip', '- use this to skip the current song')
+		.addField('!stop', '- use this to stop the current song')
+		message.channel.send(embed);
+
+	}
+
 
 	if (text.startsWith(symbol + 'weather')) {
 		weather.find({search: args.join(" "), degreeType: 'F'}, function(err, result) {
@@ -63,7 +78,9 @@ client.on('message', message => {
 			.setDescription(`**${current.skytext}**`)
 			.setAuthor(`Weather for ${current.observationpoint}!`)
 			.setThumbnail(current.imageUrl)
-			.setColor(0x00AE86)
+			//.setColor(0xc0cbff)
+			.setColor(0xc0fff4) 
+
 			.addField('Timezone',`UTC${location.timezone}`, true)
 			.addField('Degree Type',location.degreetype, true)
 			.addField('Temperature',`${current.temperature} Degrees`, true)
@@ -71,7 +88,7 @@ client.on('message', message => {
 			.addField('Winds',current.winddisplay, true)
 			.addField('Humidity', `${current.humidity}%`, true)
 
-			.channel.send({embed});
+			message.channel.send({embed});
 		});
 	}
 
@@ -88,9 +105,6 @@ client.on('message', message => {
 	else if (message.content.startsWith(symbol + 'stop')) {
 		stop(message, serverQueue);
 		return;
-	}
-	else {
-		message.channel.send("Y-You need to enter a valid command please!");
 	}
 });
 
@@ -199,4 +213,4 @@ function play(guild, song) {
   serverQueue.textChannel.send(`Start playing: **${song.title}** ~`);
 }
 
-client.login('token');
+client.login('NzE1NjM1NTAzMTAxMjQ3NTI5.XtAFfw.3iXihKeq5sKF0XoWBlDPCVxFs38');
