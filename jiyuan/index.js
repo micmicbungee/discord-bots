@@ -23,7 +23,7 @@ client.on('guildMemberAdd', member => {
 const symbol = '!'; // symbol associated with all of this bot's commands
 
 client.on('message', message => {
-	if (message.author.bot) return; // if bot sent the message, ignore
+	if (message.author.id === client.user.id) return; // if jiyuan sent the message, ignore
 
 	var cont = message.content.slice(symbol.length).split(" "); // This variable slices off the symbol, then puts the rest in an array based off the spaces
   var args = cont.slice(1); // This slices off the command in cont, only leaving the arguments.
@@ -115,6 +115,9 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
   if (text.includes('hello') || text.includes('hi') || text.includes('hey')) {
     msg.channel.send("h-hello....");
   }
+	if (text.includes("flower")) {
+		msg.channel.send("look! this flower looks like an umbrella");
+	}
   else {
     msg.channel.send("i love huan wen");
   }
