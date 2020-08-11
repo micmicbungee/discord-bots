@@ -78,8 +78,7 @@ client.on('message', message => {
 			.setDescription(`**${current.skytext}**`)
 			.setAuthor(`Weather for ${current.observationpoint}!`)
 			.setThumbnail(current.imageUrl)
-			//.setColor(0xc0cbff)
-			.setColor(0xc0fff4) 
+			.setColor(0xc0fff4)
 
 			.addField('Timezone',`UTC${location.timezone}`, true)
 			.addField('Degree Type',location.degreetype, true)
@@ -213,4 +212,4 @@ function play(guild, song) {
   serverQueue.textChannel.send(`Start playing: **${song.title}** ~`);
 }
 
-client.login('NzE1NjM1NTAzMTAxMjQ3NTI5.XtAFfw.3iXihKeq5sKF0XoWBlDPCVxFs38');
+client.login('token');
