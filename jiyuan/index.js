@@ -123,6 +123,7 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
   }
 }
 
+// functions for music
 async function execute(message, serverQueue) {
   const args = message.content.split(" ");
 
@@ -202,17 +203,17 @@ function play(guild, song) {
 
 	// const input = await ytdl(song.url);
 	// const pcm = input.pipe(new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 }));
-  // const dispatcher = connection.playConvertedStream(pcm);
-	 const dispatcher = serverQueue.connection
+	// const dispatcher = connection.playConvertedStream(pcm);
+	const dispatcher = serverQueue.connection
 		options = { quality: 'highestaudio' };
-  	dispatcher.play(ytdl(song.url, options))
-    .on("finish", () => {
-      serverQueue.songs.shift();
-      play(guild, serverQueue.songs[0]);
-    })
-    .on("error", error => console.error(error));
-  // dispatcher.setVolume(0.5);
-  serverQueue.textChannel.send(`Start playing: **${song.title}** ~`);
+		dispatcher.play(ytdl(song.url, options))
+		.on("finish", () => {
+			serverQueue.songs.shift();
+			play(guild, serverQueue.songs[0]);
+		})
+		.on("error", error => console.error(error));
+		// dispatcher.setVolume(0.5);
+	serverQueue.textChannel.send(`Start playing: **${song.title}** ~`);
 }
 
 client.login('token');
