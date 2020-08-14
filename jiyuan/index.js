@@ -23,88 +23,88 @@ client.on('guildMemberAdd', member => {
 const symbol = '!'; // symbol associated with all of this bot's commands
 
 client.on('message', message => {
-	if (message.author.id === client.user.id) return; // if jiyuan sent the message, ignore
+  if (message.author.id === client.user.id) return; // if jiyuan sent the message, ignore
 
-	var cont = message.content.slice(symbol.length).split(" "); // This variable slices off the symbol, then puts the rest in an array based off the spaces
+  var cont = message.content.slice(symbol.length).split(" "); // This variable slices off the symbol, then puts the rest in an array based off the spaces
   var args = cont.slice(1); // This slices off the command in cont, only leaving the arguments.
   var text = message.content.toLowerCase();
 
 
-  if (text.includes('huan wen')) { 	// if message has huan wen in it
-		message.channel.send('huan wen~');
-	}
+  if (text.includes('huan wen')) { // if message has huan wen in it
+    message.channel.send('huan wen~');
+  }
 
 
   if (text.startsWith(symbol + 'chat')) { // if message has command !chat
     chat(message,text);
   }
 
-	if (text.startsWith(symbol + 'commands')){ // if message has command !commands
-	//	message.channel.send("List of commands available:\n!chat - use this to chat with the bot\n!weather (insert city) - use this to check the weather\n!play (insert Youtube link) - use this to play music\n!skip - use this to skip the current song\n!stop - use this to stop the current song");
+  if (text.startsWith(symbol + 'commands')){ // if message has command !commands
+  //  message.channel.send("List of commands available:\n!chat - use this to chat with the bot\n!weather (insert city) - use this to check the weather\n!play (insert Youtube link) - use this to play music\n!skip - use this to skip the current song\n!stop - use this to stop the current song");
 
-		const embed = new Discord.MessageEmbed()
-		.setTitle("List of commands available:")
-		.setColor(0xF9C3D9)
-		.addField('!chat', '- use this to chat with the bot')
-		.addField('!weather (insert city)', '- use this to check the weather')
-		.addField('!play(insert Youtube link)', '- use this to play music')
-		.addField('!skip', '- use this to skip the current song')
-		.addField('!stop', '- use this to stop the current song')
-		message.channel.send(embed);
+    const embed = new Discord.MessageEmbed()
+      .setTitle("List of commands available:")
+      .setColor(0xF9C3D9)
+      .addField('!chat', '- use this to chat with the bot')
+      .addField('!weather (insert city)', '- use this to check the weather')
+      .addField('!play(insert Youtube link)', '- use this to play music')
+      .addField('!skip', '- use this to skip the current song')
+      .addField('!stop', '- use this to stop the current song')
+      message.channel.send(embed);
 
-	}
+  }
 
 
-	if (text.startsWith(symbol + 'weather')) {
-		weather.find({search: args.join(" "), degreeType: 'F'}, function(err, result) {
-		// if no location is specified
-		if (err) {
-			message.channel.send("Oops! P-Please input a location!");
-			return;
-		}
+  if (text.startsWith(symbol + 'weather')) {
+    weather.find({search: args.join(" "), degreeType: 'F'}, function(err, result) {
+    // if no location is specified
+    if (err) {
+      message.channel.send("Oops! P-Please input a location!");
+      return;
+    }
 
-		// if a place they enter is invalid.
-		if (result.length === 0) {
-			message.channel.send("S-Sorry, but I couldn't find that location...")
-			return;
-		}
+    // if a place they enter is invalid.
+    if (result.length === 0) {
+      message.channel.send("S-Sorry, but I couldn't find that location...")
+      return;
+    }
 
-		// Variables
-		var current = result[0].current; // current part of the JSON output
-		var location = result[0].location; // location part of the JSON output
+    // Variables
+    var current = result[0].current; // current part of the JSON output
+    var location = result[0].location; // location part of the JSON output
 
-		const embed = new Discord.MessageEmbed()
-			// from discord.js website
-			.setDescription(`**${current.skytext}**`)
-			.setAuthor(`Weather for ${current.observationpoint}!`)
-			.setThumbnail(current.imageUrl)
-			.setColor(0xc0fff4)
+    const embed = new Discord.MessageEmbed()
+    // from discord.js website
+      .setDescription(`**${current.skytext}**`)
+      .setAuthor(`Weather for ${current.observationpoint}!`)
+      .setThumbnail(current.imageUrl)
+      .setColor(0xc0fff4)
 
-			.addField('Timezone',`UTC${location.timezone}`, true)
-			.addField('Degree Type',location.degreetype, true)
-			.addField('Temperature',`${current.temperature} Degrees`, true)
-			.addField('Feels Like', `${current.feelslike} Degrees`, true)
-			.addField('Winds',current.winddisplay, true)
-			.addField('Humidity', `${current.humidity}%`, true)
+      .addField('Timezone',`UTC${location.timezone}`, true)
+      .addField('Degree Type',location.degreetype, true)
+      .addField('Temperature',`${current.temperature} Degrees`, true)
+      .addField('Feels Like', `${current.feelslike} Degrees`, true)
+      .addField('Winds',current.winddisplay, true)
+      .addField('Humidity', `${current.humidity}%`, true)
 
-			message.channel.send({embed});
-		});
-	}
+      message.channel.send({embed});
+   });
+  }
 
-	const serverQueue = queue.get(message.guild.id);
+  const serverQueue = queue.get(message.guild.id);
 
-	if (text.startsWith(symbol + 'play')) {
-		execute(message, serverQueue);
-		return;
-	}
-	else if (message.content.startsWith(symbol + 'skip')) {
-		skip(message, serverQueue);
-		return;
-	}
-	else if (message.content.startsWith(symbol + 'stop')) {
-		stop(message, serverQueue);
-		return;
-	}
+  if (text.startsWith(symbol + 'play')) {
+    execute(message, serverQueue);
+    return;
+  }
+  else if (message.content.startsWith(symbol + 'skip')) {
+    skip(message, serverQueue);
+    return;
+  }
+  else if (message.content.startsWith(symbol + 'stop')) {
+    stop(message, serverQueue);
+    return;
+  }
 });
 
 // functions
@@ -201,19 +201,19 @@ function play(guild, song) {
     return;
   }
 
-	// const input = await ytdl(song.url);
-	// const pcm = input.pipe(new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 }));
-	// const dispatcher = connection.playConvertedStream(pcm);
-	const dispatcher = serverQueue.connection
-		options = { quality: 'highestaudio' };
-		dispatcher.play(ytdl(song.url, options))
-		.on("finish", () => {
-			serverQueue.songs.shift();
-			play(guild, serverQueue.songs[0]);
-		})
-		.on("error", error => console.error(error));
-		// dispatcher.setVolume(0.5);
-	serverQueue.textChannel.send(`Start playing: **${song.title}** ~`);
+  // const input = await ytdl(song.url);
+  // const pcm = input.pipe(new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 }));
+  // const dispatcher = connection.playConvertedStream(pcm);
+  const dispatcher = serverQueue.connection
+    options = { quality: 'highestaudio' };
+    dispatcher.play(ytdl(song.url, options))
+    .on("finish", () => {
+      serverQueue.songs.shift();
+      play(guild, serverQueue.songs[0]);
+    })
+    .on("error", error => console.error(error));
+    // dispatcher.setVolume(0.5);
+    serverQueue.textChannel.send(`Start playing: **${song.title}** ~`);
 }
 
 client.login('token');
