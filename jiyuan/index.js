@@ -4,54 +4,49 @@ const ytdl = require('ytdl-core');
 const prism = require('prism-media');
 
 const client = new Discord.Client();
-const queue = new Map();
+
+const symbol = '!'; // symbol associated with all of jiyuan's commands
+const queue = new Map(); // music queue
 
 client.once('ready', () => {
 	console.log('Ready!');
 });
 
-// Server greeting (taken from discord.js API)
+// Server greeting (from https://discord.js.org/#/docs/main/stable/examples/greeting)
 client.on('guildMemberAdd', member => {
-  // Send the message to a designated channel on a server:
+	// find general channel
   const channel = member.guild.channels.cache.find(ch => ch.name === 'general');
-  // Do nothing if the channel wasn't found on this server
-  if (!channel) return;
-  // Send the message, mentioning the member
+  if (!channel) return; // if channel not found, do nothing
   channel.send(`w-welcome, ${member}~`);
 });
 
-const symbol = '!'; // symbol associated with all of this bot's commands
-
+// message events
 client.on('message', message => {
   if (message.author.id === client.user.id) return; // if jiyuan sent the message, ignore
 
-  var cont = message.content.slice(symbol.length).split(" "); // This variable slices off the symbol, then puts the rest in an array based off the spaces
-  var args = cont.slice(1); // This slices off the command in cont, only leaving the arguments.
+  var cont = message.content.slice(symbol.length).split(" "); // array filed with words of the message, not including the symbol
+  var args = cont.slice(1); // array of arguments after command
   var text = message.content.toLowerCase();
-
 
   if (text.includes('huan wen')) { // if message has huan wen in it
     message.channel.send('huan wen~');
   }
-
 
   if (text.startsWith(symbol + 'chat')) { // if message has command !chat
     chat(message,text);
   }
 
   if (text.startsWith(symbol + 'commands')){ // if message has command !commands
-  //  message.channel.send("List of commands available:\n!chat - use this to chat with the bot\n!weather (insert city) - use this to check the weather\n!play (insert Youtube link) - use this to play music\n!skip - use this to skip the current song\n!stop - use this to stop the current song");
-
     const embed = new Discord.MessageEmbed()
       .setTitle("List of commands available:")
       .setColor(0xF9C3D9)
+
       .addField('!chat', '- use this to chat with the bot')
       .addField('!weather (insert city)', '- use this to check the weather')
       .addField('!play(insert Youtube link)', '- use this to play music')
       .addField('!skip', '- use this to skip the current song')
       .addField('!stop', '- use this to stop the current song')
-      message.channel.send(embed);
-
+    message.channel.send(embed);
   }
 
 
@@ -74,7 +69,6 @@ client.on('message', message => {
     var location = result[0].location; // location part of the JSON output
 
     const embed = new Discord.MessageEmbed()
-    // from discord.js website
       .setDescription(`**${current.skytext}**`)
       .setAuthor(`Weather for ${current.observationpoint}!`)
       .setThumbnail(current.imageUrl)
@@ -87,14 +81,15 @@ client.on('message', message => {
       .addField('Winds',current.winddisplay, true)
       .addField('Humidity', `${current.humidity}%`, true)
 
-      message.channel.send({embed});
+    message.channel.send({embed});
    });
   }
 
+	// below are commands for music function
   const serverQueue = queue.get(message.guild.id);
 
   if (text.startsWith(symbol + 'play')) {
-    execute(message, serverQueue);
+    execute(message, serverQueue, args);
     return;
   }
   else if (message.content.startsWith(symbol + 'skip')) {
@@ -124,10 +119,12 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
 }
 
 // functions for music
-async function execute(message, serverQueue) {
-  const args = message.content.split(" ");
 
+// the below were taken from https://gabrieltanner.org/blog/dicord-music-bot (with minor edits)
+async function execute(message, serverQueue, args) {
+  // const args = message.content.split(" ");
   const voiceChannel = message.member.voice.channel;
+
   if (!voiceChannel)
     return message.channel.send(
       "Sorry...you need to be in a voice channel to play music....."
@@ -139,14 +136,14 @@ async function execute(message, serverQueue) {
     );
   }
 
-  const songInfo = await ytdl.getInfo(args[1]);
+  const songInfo = await ytdl.getInfo(args[0]);
   const song = {
     title: songInfo.videoDetails.title,
     url: songInfo.videoDetails.video_url
   };
 
   if (!serverQueue) {
-    const queueContruct = {
+    const queueConstruct = {
       textChannel: message.channel,
       voiceChannel: voiceChannel,
       connection: null,
@@ -155,14 +152,14 @@ async function execute(message, serverQueue) {
       playing: true
     };
 
-    queue.set(message.guild.id, queueContruct);
+    queue.set(message.guild.id, queueConstruct);
 
-    queueContruct.songs.push(song);
+    queueConstruct.songs.push(song);
 
     try {
       var connection = await voiceChannel.join();
-      queueContruct.connection = connection;
-      play(message.guild, queueContruct.songs[0]);
+      queueConstruct.connection = connection;
+      play(message.guild, queueConstruct.songs[0]);
     } catch (err) {
       console.log(err);
       queue.delete(message.guild.id);
