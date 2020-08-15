@@ -111,9 +111,9 @@ function chat(msg, text) { // msg = message object, text is actual text of messa
   if (text.includes('hello') || text.includes('hi') || text.includes('hey')) {
     msg.channel.send("h-hello....");
   }
-	if (text.includes("flower")) {
-		msg.channel.send("look! this flower looks like an umbrella");
-	}
+  else if (text.includes("flower")) {
+    msg.channel.send("look! this flower looks like an umbrella");
+  }
   else {
     msg.channel.send("i love huan wen");
   }
