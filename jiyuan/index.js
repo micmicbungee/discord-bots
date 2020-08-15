@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const weather = require('weather-js');
 const ytdl = require('ytdl-core');
 const prism = require('prism-media');
+//const opus = require('@discordjs/opus');
 
 const client = new Discord.Client();
 
@@ -148,7 +149,7 @@ async function execute(message, serverQueue, args) {
       voiceChannel: voiceChannel,
       connection: null,
       songs: [],
-      volume: 2,
+      volume: 1,
       playing: true
     };
 
@@ -202,7 +203,7 @@ function play(guild, song) {
   // const pcm = input.pipe(new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 }));
   // const dispatcher = connection.playConvertedStream(pcm);
   const dispatcher = serverQueue.connection
-    options = { quality: 'highestaudio' };
+    options = {filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1<<25};
     dispatcher.play(ytdl(song.url, options))
     .on("finish", () => {
       serverQueue.songs.shift();
