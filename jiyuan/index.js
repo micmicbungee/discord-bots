@@ -42,11 +42,11 @@ client.on('message', message => {
       .setTitle("List of commands available:")
       .setColor(0xF9C3D9)
 
-      .addField('!chat', '- use this to chat with the bot')
-      .addField('!weather (insert city)', '- use this to check the weather')
-      .addField('!play(insert Youtube link)', '- use this to play music')
-      .addField('!skip', '- use this to skip the current song')
-      .addField('!stop', '- use this to stop the current song')
+      .addField('!chat', ' use this to chat with the bot')
+      .addField('!weather (insert city)', ' use this to check the weather')
+      .addField('!play(insert Youtube link)', ' use this to play music')
+      .addField('!skip', ' use this to skip the current song')
+      .addField('!stop', ' use this to stop the current song')
     message.channel.send(embed);
   }
 

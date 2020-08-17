@@ -66,8 +66,14 @@ client.on('message', message => {
   	const embed = new Discord.MessageEmbed()
   		.setTitle("List of commands available:")
   		.setColor(0xF9C3D9)
-  		.addField('~chat', '- use this to chat with the bot')
-			.addField('~choose (option a | option b | ...)', '- use this to have me help you decide')
+  		.addField('~chat', ' use this to chat with the bot')
+			.addField('~choose (option a | option b | ... )', ' use this to have me help you decide')
+			.addField('~add (task)', ' use this to add a task to your to do list')
+			.addField('~remove (task)', ' use this to remove a task from your to do list')
+			.addField('~show', ' use this to display the to do list')
+
+
+
   	message.channel.send(embed);
 	}
 });
